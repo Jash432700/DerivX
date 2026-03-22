@@ -2,23 +2,32 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import dynamic from 'next/dynamic'
 import Sidebar from '@/components/ui/Sidebar'
 import Notification, { showNotif } from '@/components/ui/Notification'
 import Modal from '@/components/ui/Modal'
 import { useDerivXStore } from '@/lib/store'
 import { CHAPTERS, CHAPTER_DATA } from '@/lib/bookData'
 
-// Tab components
-import LearnTab from '@/components/tabs/LearnTab'
-import SimulateTab from '@/components/tabs/SimulateTab'
-import FormulasTab from '@/components/tabs/FormulasTab'
-import SummaryTab from '@/components/tabs/SummaryTab'
-import ExamplesTab from '@/components/tabs/ExamplesTab'
-import ProblemsTab from '@/components/tabs/ProblemsTab'
-import QuizTab from '@/components/tabs/QuizTab'
-import FlashcardsTab from '@/components/tabs/FlashcardsTab'
-import SpeedLearnTab from '@/components/tabs/SpeedLearnTab'
-import TradeTab from '@/components/tabs/TradeTab'
+// Dynamic imports — prevents SSR crash for chart-heavy components
+const LearnTab      = dynamic(() => import('@/components/tabs/LearnTab'),      { ssr: false, loading: () => <TabLoader /> })
+const SimulateTab   = dynamic(() => import('@/components/tabs/SimulateTab'),   { ssr: false, loading: () => <TabLoader /> })
+const TradeTab      = dynamic(() => import('@/components/tabs/TradeTab'),       { ssr: false, loading: () => <TabLoader /> })
+const FormulasTab   = dynamic(() => import('@/components/tabs/FormulasTab'),   { ssr: false, loading: () => <TabLoader /> })
+const SummaryTab    = dynamic(() => import('@/components/tabs/SummaryTab'),    { ssr: false, loading: () => <TabLoader /> })
+const ExamplesTab   = dynamic(() => import('@/components/tabs/ExamplesTab'),   { ssr: false, loading: () => <TabLoader /> })
+const ProblemsTab   = dynamic(() => import('@/components/tabs/ProblemsTab'),   { ssr: false, loading: () => <TabLoader /> })
+const QuizTab       = dynamic(() => import('@/components/tabs/QuizTab'),       { ssr: false, loading: () => <TabLoader /> })
+const FlashcardsTab = dynamic(() => import('@/components/tabs/FlashcardsTab'), { ssr: false, loading: () => <TabLoader /> })
+const SpeedLearnTab = dynamic(() => import('@/components/tabs/SpeedLearnTab'), { ssr: false, loading: () => <TabLoader /> })
+
+function TabLoader() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <div className="w-8 h-8 border-2 border-white/10 border-t-accent rounded-full animate-spin" />
+    </div>
+  )
+}
 
 const TABS = [
   { id: 'learn',      label: '📚 Learn' },
@@ -39,8 +48,11 @@ export default function ChapterPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('learn')
   const [resetModalOpen, setResetModalOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const store = useDerivXStore()
   const { state, loaded } = store
+
+  useEffect(() => { setMounted(true) }, [])
 
   const chData = CHAPTER_DATA[id]
   const chMeta = CHAPTERS.find(c => c.id === id)
@@ -49,7 +61,13 @@ export default function ChapterPage() {
     if (loaded && !chData) router.push('/')
   }, [loaded, chData, router])
 
-  if (!chData || !chMeta) return null
+  if (!mounted || !chData || !chMeta) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-bg">
+        <div className="w-10 h-10 border-2 border-white/10 border-t-accent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   const handleReset = () => {
     store.resetChapter(id)
@@ -65,31 +83,38 @@ export default function ChapterPage() {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} state={state} />
       <Notification />
 
-      <div className="flex-1 overflow-y-auto flex flex-col bg-bg">
+      <div className="flex-1 overflow-y-auto flex flex-col" style={{ background: '#080c18' }}>
         {/* Topbar */}
-        <div className="h-14 bg-bg-2 border-b border-white/[0.08] flex items-center px-3 gap-2 sticky top-0 z-30 flex-shrink-0">
+        <div className="h-14 flex items-center px-3 gap-2 sticky top-0 z-30 flex-shrink-0" style={{ background: '#0d1120', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           <button onClick={() => setSidebarOpen(true)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 text-slate-400 hover:text-white hover:bg-bg-4 transition-all flex-shrink-0">
+            className="w-8 h-8 flex items-center justify-center rounded-lg transition-all flex-shrink-0"
+            style={{ border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}>
             <svg width="15" height="12" viewBox="0 0 15 12" fill="currentColor">
               <rect y="0" width="15" height="2" rx="1"/><rect y="5" width="15" height="2" rx="1"/><rect y="10" width="15" height="2" rx="1"/>
             </svg>
           </button>
 
-          {/* Tab scroll */}
+          {/* Scrollable tabs */}
           <div className="flex gap-0.5 overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
             {TABS.map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`px-2.5 py-1.5 text-[11px] rounded-lg whitespace-nowrap transition-all flex-shrink-0 ${activeTab === t.id ? 'bg-surface text-accent' : 'text-slate-400 hover:text-white hover:bg-bg-4'}`}>
+                className="px-3 py-1.5 rounded-lg whitespace-nowrap transition-all flex-shrink-0 text-xs"
+                style={{
+                  background: activeTab === t.id ? '#1c2540' : 'transparent',
+                  color: activeTab === t.id ? '#5b8dff' : '#94a3b8',
+                }}>
                 {t.label}
               </button>
             ))}
           </div>
 
           <button onClick={() => setResetModalOpen(true)}
-            className="text-[10px] font-mono text-danger border border-danger/30 px-2 py-1 rounded-lg hover:bg-danger/10 transition-all flex-shrink-0">
+            className="text-xs px-2 py-1 rounded-lg flex-shrink-0 transition-all"
+            style={{ fontFamily: 'monospace', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }}>
             ↺
           </button>
-          <div className="font-mono text-xs text-emerald border border-emerald/25 px-2.5 py-1 rounded-lg flex-shrink-0">
+          <div className="text-xs px-2.5 py-1 rounded-lg flex-shrink-0"
+            style={{ fontFamily: 'monospace', color: '#10b981', border: '1px solid rgba(16,185,129,0.25)' }}>
             ₹{(state.balance || 50000).toLocaleString()}
           </div>
         </div>
@@ -97,7 +122,7 @@ export default function ChapterPage() {
         {/* Tab Content */}
         <div className="flex-1 p-4 md:p-6 max-w-5xl mx-auto w-full">
           <AnimatePresence mode="wait">
-            <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.22 }}>
+            <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
               {activeTab === 'learn'      && <LearnTab      {...tabProps} />}
               {activeTab === 'simulate'   && <SimulateTab   {...tabProps} />}
               {activeTab === 'trade'      && <TradeTab      {...tabProps} />}
@@ -115,18 +140,26 @@ export default function ChapterPage() {
 
       {/* Reset Modal */}
       <Modal isOpen={resetModalOpen} onClose={() => setResetModalOpen(false)} title={`↺ Reset Chapter ${chMeta.num}`}>
-        <p className="text-slate-300 text-sm mb-4">This will clear all progress for <strong className="text-white">Chapter {chMeta.num} — {chMeta.title}</strong>:</p>
-        <ul className="space-y-1.5 mb-5 text-sm text-slate-400">
-          {['Concept completions', 'Quiz scores', 'Flashcard mastery', 'Speed learn position', 'Problems solved', 'Formulas viewed'].map(i => (
-            <li key={i} className="flex items-center gap-2"><span className="text-danger text-xs">✕</span>{i}</li>
+        <p className="text-sm mb-4" style={{ color: '#94a3b8' }}>
+          This will clear all progress for <strong style={{ color: 'white' }}>Chapter {chMeta.num} — {chMeta.title}</strong>:
+        </p>
+        <ul className="space-y-1.5 mb-5">
+          {['Concept completions', 'Quiz scores', 'Flashcard mastery', 'Speed learn position', 'Problems solved', 'Formulas viewed'].map(item => (
+            <li key={item} className="flex items-center gap-2 text-sm" style={{ color: '#94a3b8' }}>
+              <span style={{ color: '#ef4444', fontSize: '11px' }}>✕</span>{item}
+            </li>
           ))}
         </ul>
-        <p className="text-xs text-slate-500 mb-5">Your XP, balance, and achievements are kept.</p>
+        <p className="text-xs mb-5" style={{ color: '#4b5a72' }}>Your XP, balance, and achievements are kept.</p>
         <div className="flex gap-3">
-          <button onClick={handleReset} className="flex-1 bg-danger/15 border border-danger/40 text-danger py-2.5 rounded-lg text-sm font-semibold hover:bg-danger/25 transition-all">
+          <button onClick={handleReset}
+            className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all"
+            style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#ef4444' }}>
             Reset Chapter {chMeta.num}
           </button>
-          <button onClick={() => setResetModalOpen(false)} className="flex-1 bg-surface border border-white/10 text-slate-300 py-2.5 rounded-lg text-sm hover:text-white transition-all">
+          <button onClick={() => setResetModalOpen(false)}
+            className="flex-1 py-2.5 rounded-lg text-sm transition-all"
+            style={{ background: '#1c2540', border: '1px solid rgba(255,255,255,0.1)', color: '#cbd5e1' }}>
             Cancel
           </button>
         </div>
@@ -134,3 +167,4 @@ export default function ChapterPage() {
     </div>
   )
 }
+
