@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #080c18;
+  --bg2: #0d1120;
+  --bg3: #111827;
+  --bg4: #161e30;
+  --surface: #1c2540;
+  --border: rgba(100, 120, 255, 0.12);
+  --border2: rgba(100, 120, 255, 0.28);
+  --accent: #5b8dff;
+  --accent2: #8b5cf6;
+  --gold: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --cyan: #06b6d4;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #4b5a72;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface);
+  border-radius: 3px;
+}
+
+@layer components {
+  .card {
+    @apply bg-bg-3 border border-white/[0.08] rounded-xl p-6 mb-6;
+  }
+
+  .card-title {
+    @apply font-head font-bold text-[0.95rem] text-white mb-4 flex items-center gap-2;
+  }
+
+  .pill-btn {
+    @apply bg-surface border border-white/10 text-slate-400 px-4 py-1.5 rounded-full text-xs cursor-pointer transition-all duration-200 hover:border-white/20 hover:text-white;
+  }
+
+  .pill-btn-accent {
+    @apply bg-accent/10 border border-accent/40 text-accent px-4 py-1.5 rounded-full text-xs cursor-pointer transition-all;
+  }
+
+  .exec-btn {
+    @apply bg-gradient-to-r from-accent to-accent-2 border-0 text-white px-7 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30;
+  }
+
+  .sl-row {
+    @apply flex items-center gap-3 mb-3;
+  }
+
+  .sl-lbl {
+    @apply text-xs text-slate-400 w-44 flex-shrink-0 font-mono;
+  }
+
+  .info-box {
+    @apply bg-bg-2 rounded-lg p-4 text-xs text-slate-400 leading-relaxed;
+  }
+
+  .sim-tab {
+    @apply px-4 py-2 text-xs text-slate-400 cursor-pointer rounded-t-lg transition-all border border-transparent border-b-0 whitespace-nowrap;
+  }
+
+  .sim-tab-active {
+    @apply bg-bg-3 text-accent border-white/10;
+  }
+
+  .strat-btn {
+    @apply bg-surface border border-white/10 text-slate-400 px-4 py-2 rounded-lg text-xs cursor-pointer transition-all hover:border-white/20 hover:text-white;
+  }
+
+  .strat-btn-sel {
+    @apply bg-accent/10 border-accent text-accent;
+  }
+
+  .input-field {
+    @apply w-full bg-bg-2 border border-white/10 text-white px-3 py-2 rounded-lg font-mono text-sm focus:outline-none focus:border-accent/50;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono;
+  }
+
+  .badge-green {
+    @apply bg-emerald/10 text-emerald border border-emerald/20;
+  }
+
+  .badge-red {
+    @apply bg-danger/10 text-danger border border-danger/20;
+  }
+
+  .badge-gold {
+    @apply bg-gold/10 text-gold border border-gold/20;
+  }
+
+  .badge-blue {
+    @apply bg-accent/10 text-accent border border-accent/20;
+  }
+
+  .formula-box {
+    @apply bg-bg-2 border border-accent/20 rounded-xl p-5 mb-4 font-mono;
+  }
+
+  .formula-title {
+    @apply text-xs text-accent uppercase tracking-widest mb-3 font-sans;
+  }
+
+  .formula-main {
+    @apply text-lg text-white font-semibold mb-2;
+  }
+
+  .formula-vars {
+    @apply text-xs text-slate-400 leading-relaxed;
+  }
+
+  .problem-card {
+    @apply bg-bg-4 border border-white/[0.07] rounded-xl p-5 mb-4;
+  }
+
+  .problem-num {
+    @apply font-mono text-xs text-accent mb-2;
+  }
+
+  .problem-text {
+    @apply text-sm text-slate-200 leading-relaxed mb-4;
+  }
+
+  .solution-box {
+    @apply bg-bg-2 border-l-2 border-emerald rounded-r-lg p-4 text-sm text-slate-300 leading-relaxed mt-3;
+  }
+
+  .chapter-hero {
+    @apply bg-gradient-to-br from-bg-3 to-bg-4 border border-white/10 rounded-xl p-8 mb-6 relative overflow-hidden;
+  }
+
+  .summary-point {
+    @apply flex gap-3 p-3 bg-bg-4 rounded-lg border border-white/[0.06] mb-2;
+  }
+}
+
+/* Range input styling */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--surface);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* Flip card */
+.flip-card { perspective: 1000px; }
+.flip-card-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+.flip-card-inner.flipped { transform: rotateY(180deg); }
+.flip-card-front,
+.flip-card-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-card-back { transform: rotateY(180deg); }
+
+/* Plotly override */
+.js-plotly-plot .plotly .modebar {
+  display: none !important;
+}
